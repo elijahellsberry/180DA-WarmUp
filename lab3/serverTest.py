@@ -14,7 +14,7 @@ while True:
         from_client = data.decode()
         #from_client += data
         print(from_client)
-        message = "I am SERVER"
+        message = "I am SERVER\n"
         conn.sendto(message.encode(), ('127.0.0.1', 8080))
     conn.close()
     print('client disconnected')
