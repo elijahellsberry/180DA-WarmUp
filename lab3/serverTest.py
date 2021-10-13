@@ -3,7 +3,7 @@ import socket
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Assigns a port for the server that listens to clients connecting to this port
-serv.bind(('127.0.0.1', 8080))
+serv.bind(('', 8080))
 serv.listen(5)
 while True:
     conn, addr = serv.accept()
@@ -15,6 +15,6 @@ while True:
         #from_client += data
         print(from_client)
         message = "I am SERVER\n"
-        conn.sendto(message.encode(), ('127.0.0.1', 8080))
+        conn.sendto(message.encode(), ('', 8080))
     conn.close()
     print('client disconnected')
