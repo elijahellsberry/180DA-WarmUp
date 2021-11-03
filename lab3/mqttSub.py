@@ -14,9 +14,10 @@ def on_disconnect(client, userdata, rc):
 
 def on_message(client, userdata, message):
     #print("Received message: " + str(message.payload) + " on topic '" + message.topic + "' with QoS '" + str(message.qos) + "'")
-    #print(message.payload.decode())
+    #print(message.payload.decode('utf-8'))
     ping = time.time() - float(message.payload)
     print(str(ping) + "s")
+
 client = mqtt.Client()
 
 client.on_connect = on_connect
