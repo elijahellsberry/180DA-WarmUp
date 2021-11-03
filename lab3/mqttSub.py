@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import time
 
 def on_connect(client, userdata, flags, rc):
     print("Connection returned result: "+str(rc))
@@ -13,7 +14,9 @@ def on_disconnect(client, userdata, rc):
 
 def on_message(client, userdata, message):
     #print("Received message: " + str(message.payload) + " on topic '" + message.topic + "' with QoS '" + str(message.qos) + "'")
-    print(message.payload.decode('utf-8'))
+    #print(message.payload.decode('utf-8'))
+    ping = time.time() - float(message.payload)
+    print(str(ping) + "s")
 
 client = mqtt.Client()
 
