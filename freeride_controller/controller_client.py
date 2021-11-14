@@ -1,6 +1,6 @@
 import bluetooth
 
-server_address = "D4-3B-04-97-DA-5F"
+server_address = 'd4:3b:04:97:da:5f'
 port = 6
 
 
