@@ -23,7 +23,7 @@ import math
 import IMU
 import datetime
 import os
-import socket
+import bluetooth
 import numpy as np
 
 RAD_TO_DEG = 57.29578
@@ -38,8 +38,8 @@ MAG_MEDIANTABLESIZE = 9         # Median filter table size for magnetometer. Hig
 server_address = 'd4:3b:04:97:da:5f'
 port = 6
 
-client = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-
+client = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+client.connect((server_address, port))
 
 
 ################# Compass Calibration values ############
@@ -407,12 +407,19 @@ while True:
 
     #print(outputString)
     client.connect((server_address, port))
-    message = outputString
-    client.send(bytes(message, 'UTF-8'))
-    data = client.recv(4096)
-    from_server = data.decode()
+    while outputString:
+        message = outputString
+        client.send(outputString)
+
+
+
+
+    # message = outputString
+    # client.send(outputString)
+    # data = client.recv(4096)
+    # from_server = data.decode()
     client.close()
-    print(from_server)
+    # print(from_server)
 
     #slow program down a bit, makes the output more readable
     time.sleep(0.03)
