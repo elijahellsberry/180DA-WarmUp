@@ -25,6 +25,7 @@ import datetime
 import os
 import bluetooth
 import numpy as np
+import json
 
 RAD_TO_DEG = 57.29578
 M_PI = 3.14159265358979323846
@@ -39,8 +40,7 @@ server_address = 'd4:3b:04:97:da:5f'
 port = 6
 
 client = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-client.connect((server_address, port))
-
+client.connect(('d4:3b:04:97:da:5f', port))
 
 ################# Compass Calibration values ############
 # Use calibrateBerryIMU.py to get calibration values
@@ -404,12 +404,32 @@ while True:
 
     if 0:                       #Change to '0' to stop  showing the angles from the Kalman filter
         outputString +="# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)
-
+    
+    send_time = time.time_ns()
     #print(outputString)
-    client.connect((server_address, port))
-    while outputString:
-        message = outputString
-        client.send(outputString)
+    packet = {
+        "AccXangle":AccXangle,
+        "AccYangle":AccYangle,
+        "gyroXangle":gyroXangle,
+        "gyroYangle":gyroYangle,
+        "gyroZangle":gyroZangle,
+        "CFangleX":CFangleX,
+        "CFangleY":CFangleY,
+        "heading":heading,
+        "tiltCompensatedHeading":tiltCompensatedHeading,
+        "kalmanX":kalmanX,
+        "kalmanY":kalmanY,
+        "time":send_time
+    }
+    #message = outputString
+    client.send(json.dumps(packet))
+
+
+
+
+    #while outputString:
+       # message = outputString
+       # client.send(outputString)
 
 
 
@@ -418,9 +438,8 @@ while True:
     # client.send(outputString)
     # data = client.recv(4096)
     # from_server = data.decode()
-    client.close()
     # print(from_server)
 
     #slow program down a bit, makes the output more readable
-    time.sleep(0.03)
+    #time.sleep(0.03)
 
