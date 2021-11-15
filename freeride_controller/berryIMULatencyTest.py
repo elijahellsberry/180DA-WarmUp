@@ -39,7 +39,7 @@ server_address = 'd4:3b:04:97:da:5f'
 port = 6
 
 client = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-client.connect((server_address, port))
+#client.connect((server_address, port))
 
 
 ################# Compass Calibration values ############
