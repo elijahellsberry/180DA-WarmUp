@@ -1,6 +1,6 @@
 import socket
 
-server_address = 'd4:3b:04:97:da:5f'
+server_address = 'd4:3b:04:97:da:5f' # change this to your host device's mac address
 port = 0
 
 # Initialization to add RFCOMM protocol to endpoint
