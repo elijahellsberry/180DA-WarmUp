@@ -26,6 +26,7 @@ import os
 import bluetooth
 import numpy as np
 import json
+import socket
 
 RAD_TO_DEG = 57.29578
 M_PI = 3.14159265358979323846
@@ -37,10 +38,28 @@ ACC_MEDIANTABLESIZE = 9         # Median filter table size for accelerometer. Hi
 MAG_MEDIANTABLESIZE = 9         # Median filter table size for magnetometer. Higher = smoother but a longer delay
 
 server_address = 'd4:3b:04:97:da:5f'
-port = 6
+port = 12
 
-client = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-client.connect(('d4:3b:04:97:da:5f', port))
+#client = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+#client = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+for _ in range(20):
+    try:
+        client = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+        client.connect(('d4:3b:04:97:da:5f', 5))
+        break
+    except Exception as e:
+        print("Connect failed... Retrying...")
+        time.sleep(3)
+        client.close()
+        continue
+else:
+    print("Couldn't connect to target device... Exiting")
+    time.sleep(5)
+    quit()
+
+
+
+#client.connect(('d4:3b:04:97:da:5f', 5))
 
 ################# Compass Calibration values ############
 # Use calibrateBerryIMU.py to get calibration values
@@ -199,7 +218,8 @@ if(IMU.BerryIMUversion == 99):
     sys.exit()
 IMU.initIMU()       #Initialise the accelerometer, gyroscope and compass
 
-
+#client.connect(('5c:fb:3a:65:d7:80', 5)) # laptop
+#client.connect(('d4:3b:04:97:da:5f',5)) # desktop
 while True:
 
     #Read the accelerometer,gyroscope and magnetometer values
@@ -224,7 +244,7 @@ while True:
     b = datetime.datetime.now() - a
     a = datetime.datetime.now()
     LP = b.microseconds/(1000000*1.0)
-    outputString = "Loop Time %5.2f " % ( LP )
+#    outputString = "Loop Time %5.2f " % ( LP )
 
 
 
@@ -337,27 +357,27 @@ while True:
     CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
 
     #Kalman filter used to combine the accelerometer and gyro values.
-    kalmanY = kalmanFilterY(AccYangle, rate_gyr_y,LP)
-    kalmanX = kalmanFilterX(AccXangle, rate_gyr_x,LP)
+#    kalmanY = kalmanFilterY(AccYangle, rate_gyr_y,LP)
+#    kalmanX = kalmanFilterX(AccXangle, rate_gyr_x,LP)
 
     #Calculate heading
-    heading = 180 * math.atan2(MAGy,MAGx)/M_PI
+#    heading = 180 * math.atan2(MAGy,MAGx)/M_PI
 
     #Only have our heading between 0 and 360
-    if heading < 0:
-        heading += 360
+#    if heading < 0:
+#        heading += 360
 
     ####################################################################
     ###################Tilt compensated heading#########################
     ####################################################################
     #Normalize accelerometer raw values.
-    accXnorm = ACCx/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
-    accYnorm = ACCy/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
+#    accXnorm = ACCx/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
+#    accYnorm = ACCy/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
 
 
     #Calculate pitch and roll
-    pitch = math.asin(accXnorm)
-    roll = -math.asin(accYnorm/math.cos(pitch))
+#    pitch = math.asin(accXnorm)
+#    roll = -math.asin(accYnorm/math.cos(pitch))
 
 
     #Calculate the new tilt compensated values
@@ -365,47 +385,47 @@ while True:
     #This needs to be taken into consideration when performing the calculations
 
     #X compensation
-    if(IMU.BerryIMUversion == 1 or IMU.BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
-        magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
-    else:                                                                #LSM9DS1
-        magXcomp = MAGx*math.cos(pitch)-MAGz*math.sin(pitch)
+#    if(IMU.BerryIMUversion == 1 or IMU.BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
+#        magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
+#    else:                                                                #LSM9DS1
+#        magXcomp = MAGx*math.cos(pitch)-MAGz*math.sin(pitch)
 
     #Y compensation
-    if(IMU.BerryIMUversion == 1 or IMU.BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
-        magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
-    else:                                                                #LSM9DS1
-        magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)+MAGz*math.sin(roll)*math.cos(pitch)
+#    if(IMU.BerryIMUversion == 1 or IMU.BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
+#        magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
+#    else:                                                                #LSM9DS1
+#        magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)+MAGz*math.sin(roll)*math.cos(pitch)
 
 
 
 
 
     #Calculate tilt compensated heading
-    tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
+#    tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
 
-    if tiltCompensatedHeading < 0:
-        tiltCompensatedHeading += 360
+#    if tiltCompensatedHeading < 0:
+#        tiltCompensatedHeading += 360
 
 
     ##################### END Tilt Compensation ########################
 
 
-    if 1:                       #Change to '0' to stop showing the angles from the accelerometer
-        outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
+#    if 1:                       #Change to '0' to stop showing the angles from the accelerometer
+#        outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
 
-    if 1:                       #Change to '0' to stop  showing the angles from the gyro
-        outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)
+#    if 1:                       #Change to '0' to stop  showing the angles from the gyro
+#        outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)
 
-    if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
-        outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (CFangleX,CFangleY)
+#    if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
+#        outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (CFangleX,CFangleY)
 
-    if 0:                       #Change to '0' to stop  showing the heading
-        outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
+#    if 0:                       #Change to '0' to stop  showing the heading
+#        outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
 
-    if 0:                       #Change to '0' to stop  showing the angles from the Kalman filter
-        outputString +="# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)
-    
-    send_time = time.time_ns()
+#    if 0:                       #Change to '0' to stop  showing the angles from the Kalman filter
+#        outputString +="# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)
+
+    send_time = str(time.time_ns())
     #print(outputString)
     packet = {
         "AccXangle":AccXangle,
@@ -415,16 +435,12 @@ while True:
         "gyroZangle":gyroZangle,
         "CFangleX":CFangleX,
         "CFangleY":CFangleY,
-        "heading":heading,
-        "tiltCompensatedHeading":tiltCompensatedHeading,
-        "kalmanX":kalmanX,
-        "kalmanY":kalmanY,
         "time":send_time
     }
     #message = outputString
-    client.send(json.dumps(packet))
-
-
+    client.send(bytes(json.dumps(packet), 'UTF-8'))
+    #client.send(json.dumps(packet))
+    #client.send(send_time)
 
 
     #while outputString:
@@ -441,5 +457,5 @@ while True:
     # print(from_server)
 
     #slow program down a bit, makes the output more readable
-    #time.sleep(0.03)
+    time.sleep(0.01)
 
