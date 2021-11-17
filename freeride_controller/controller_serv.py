@@ -2,6 +2,9 @@ import socket
 import json
 import time
 
+server_address = 'd4:3b:04:97:da:5f' 
+port = 5
+
 # Initialization to add RFCOMM protocol to endpoint
 serv = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
 
