@@ -20,12 +20,13 @@ client.on_connect = on_connect
 client.on_disconnect = on_disconnect
 client.on_message = on_message
 
-client.connect_async("mqtt.eclipseprojects.io")
+client.connect("broker.emqx.io")
 
 client.loop_start()
 
-for i in range(10):
-    client.publish("ece180d/test/elijah", time.time(), qos=1)
+# for i in range(10):
+#     client.publish("ece180d/test", time.time(), qos=1)
+client.publish("ece180d/test", "This is Elijah", qos=1)
 
 client.loop_stop()
 client.disconnect()
